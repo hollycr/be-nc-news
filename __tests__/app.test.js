@@ -53,3 +53,41 @@ describe("/api", () => {
       });
   });
 });
+
+describe("/api/articles", () => {
+  describe("/:article_id", () => {
+    test("GET: 200 responds with a single article, by article_id", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toMatchObject({
+            article_id: expect.any(Number),
+            author: expect.any(String),
+            title: expect.any(String),
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
+        });
+    });
+    test("GET: 404 responds with appropriate status and error message when given a valid but non-existent id", () => {
+      return request(app)
+        .get("/api/articles/50")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article does not exist");
+        });
+    });
+    test("GET: 400 responds with appropriate status and error message when given an invalid id", () => {
+      return request(app)
+        .get("/api/articles/squirrels")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
+        });
+    });
+  });
+});
