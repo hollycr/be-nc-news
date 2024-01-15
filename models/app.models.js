@@ -1,8 +1,12 @@
 const db = require("../db/connection");
 
 module.exports.fetchTopics = () => {
-  console.log("made it to the model");
   return db.query("SELECT * FROM topics").then(({ rows }) => {
     return rows;
   });
+};
+
+module.exports.fetchEndPoints = () => {
+  const endpoints = require("../endpoints.json");
+  return endpoints;
 };

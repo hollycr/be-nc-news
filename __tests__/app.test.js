@@ -30,3 +30,21 @@ describe("/api/topics", () => {
       });
   });
 });
+
+describe("/api", () => {
+  const endpoints = require("../endpoints.json");
+  test("GET: 200 should respond with an object describing all available endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body["GET /api"]).toMatchObject({
+          description: expect.anything(String),
+          queries: expect.anything(Object),
+          requestBodyFormat: expect.anything(Object),
+          exampleResponse: expect.anything(Object),
+        });
+        expect(body).toEqual(endpoints);
+      });
+  });
+});
