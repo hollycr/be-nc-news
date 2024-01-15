@@ -10,7 +10,12 @@ afterAll(() => db.end());
 
 describe("/api/invalid-end-points", () => {
   test("GET:404 responds with a 404 when passed an invalid path", () => {
-    return request(app).get("/api/nonsensefkjashslgh").expect(404);
+    return request(app)
+      .get("/api/nonsensefkjashslgh")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Endpoint not found!");
+      });
   });
 });
 
@@ -23,8 +28,8 @@ describe("/api/topics", () => {
         expect(body.topics.length).toBe(3);
         body.topics.forEach((topic) => {
           expect(topic).toMatchObject({
-            slug: expect.anything(),
-            description: expect.anything(),
+            slug: expect.any(String),
+            description: expect.any(String),
           });
         });
       });
