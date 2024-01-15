@@ -16,7 +16,7 @@ module.exports.getTopics = (req, res, next) => {
 
 module.exports.getEndPoints = (req, res, next) => {
   const endPoints = fetchEndPoints();
-  res.status(200).send(endPoints);
+  res.status(200).send({ endPoints });
 };
 
 module.exports.getArticleById = (req, res, next) => {
