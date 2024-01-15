@@ -43,13 +43,7 @@ describe("/api", () => {
       .get("/api")
       .expect(200)
       .then(({ body }) => {
-        expect(body["GET /api"]).toMatchObject({
-          description: expect.anything(String),
-          queries: expect.anything(Object),
-          requestBodyFormat: expect.anything(Object),
-          exampleResponse: expect.anything(Object),
-        });
-        expect(body).toEqual(endpoints);
+        expect(body.endPoints).toEqual(endpoints);
       });
   });
 });
