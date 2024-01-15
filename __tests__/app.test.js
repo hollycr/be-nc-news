@@ -49,6 +49,34 @@ describe("/api", () => {
 });
 
 describe("/api/articles", () => {
+  test("GET: 200 responds with an array of articles objects", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        body.articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+          expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+  test("GET: 200 responds with an array of articles sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
   describe("/:article_id", () => {
     test("GET: 200 responds with a single article, by article_id", () => {
       return request(app)
