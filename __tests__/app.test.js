@@ -184,7 +184,6 @@ describe("/api/articles", () => {
           );
         });
     });
-    // POST: 400 invalid resquest body (not inc_votes)
   });
   describe("/:article_id/comments", () => {
     test("GET: 200 responds with an array of comments for the given article_id", () => {
