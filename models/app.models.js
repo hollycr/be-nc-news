@@ -46,3 +46,15 @@ module.exports.insertComment = (commentToPost, article_id) => {
     return rows[0];
   });
 };
+
+module.exports.updateArticleVotesById = (updatedVoteCount, article_id) => {
+  const values = [updatedVoteCount, article_id];
+  return db
+    .query(
+      `UPDATE articles SET votes = $1 WHERE article_id = $2 RETURNING *`,
+      values
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};

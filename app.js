@@ -5,6 +5,7 @@ const {
   getArticles,
   getCommentsByArticleId,
   postCommentByArticleId,
+  patchArticleVotesById,
 } = require("./controllers/app.controllers");
 
 const { psqlErrorHandler } = require("./error-handlers");
@@ -15,13 +16,15 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/api", getEndPoints);
+
 app.get("/api/topics", getTopics);
 
-app.get("/api", getEndPoints);
+app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id", getArticleById);
 
-app.get("/api/articles", getArticles);
+app.patch("/api/articles/:article_id", patchArticleVotesById);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 

@@ -19,6 +19,18 @@ describe("/api/invalid-end-points", () => {
   });
 });
 
+describe("/api", () => {
+  const endpoints = require("../endpoints.json");
+  test("GET: 200 should respond with an object describing all available endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.endPoints).toEqual(endpoints);
+      });
+  });
+});
+
 describe("/api/topics", () => {
   test("GET: 200 sends an array of topic objects, each with a slug and description property", () => {
     return request(app)
@@ -32,18 +44,6 @@ describe("/api/topics", () => {
             description: expect.any(String),
           });
         });
-      });
-  });
-});
-
-describe("/api", () => {
-  const endpoints = require("../endpoints.json");
-  test("GET: 200 should respond with an object describing all available endpoints", () => {
-    return request(app)
-      .get("/api")
-      .expect(200)
-      .then(({ body }) => {
-        expect(body.endPoints).toEqual(endpoints);
       });
   });
 });
@@ -103,7 +103,7 @@ describe("/api/articles", () => {
           expect(body.msg).toBe("Article does not exist");
         });
     });
-    test("GET: 400 responds with appropriate status and error message when given an invalid id", () => {
+    test("GET: 400 responds with appropriate status and error message when given an invalid article_id", () => {
       return request(app)
         .get("/api/articles/squirrels")
         .expect(400)
@@ -111,6 +111,80 @@ describe("/api/articles", () => {
           expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
         });
     });
+    test("PATCH: 200 responds with the updated article", () => {
+      const votesToUpdate = {
+        inc_votes: 12,
+      };
+      return request(app)
+        .patch("/api/articles/11")
+        .send(votesToUpdate)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toMatchObject({
+            article_id: 11,
+            author: "icellusedkars",
+            title: "Am I a cat?",
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: 12,
+            article_img_url: expect.any(String),
+          });
+        });
+    });
+    test("PATCH: 404 responds with appropriate status and error message when given a valid but non-existent id", () => {
+      const votesToUpdate = {
+        inc_votes: 12,
+      };
+      return request(app)
+        .patch("/api/articles/237")
+        .send(votesToUpdate)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article does not exist");
+        });
+    });
+    test("PATCH: 400 responds with appropriate status and error message when given an invalid article_id (not an integer)", () => {
+      const votesToUpdate = {
+        inc_votes: 12,
+      };
+      return request(app)
+        .patch("/api/articles/squireels")
+        .send(votesToUpdate)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
+        });
+    });
+    test("PATCH: 400 responds with appropriate status and error message when provided with an invalid request body (missing inc_votes)", () => {
+      const votesToUpdate = {
+        wrong_key: 12,
+      };
+      return request(app)
+        .patch("/api/articles/2")
+        .send(votesToUpdate)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Invalid request - must include inc_votes which must have an integer value"
+          );
+        });
+    });
+    test("PATCH: 400 responds with appropriate status and error message when provided with an invalid request body (inc_votes is not given with an integer value)", () => {
+      const votesToUpdate = {
+        inc_votes: "twelve",
+      };
+      return request(app)
+        .patch("/api/articles/2")
+        .send(votesToUpdate)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Invalid request - must include inc_votes which must have an integer value"
+          );
+        });
+    });
+    // POST: 400 invalid resquest body (not inc_votes)
   });
   describe("/:article_id/comments", () => {
     test("GET: 200 responds with an array of comments for the given article_id", () => {
@@ -247,6 +321,5 @@ describe("/api/articles", () => {
           );
         });
     });
-    // update endpoint.json
   });
 });
