@@ -154,7 +154,7 @@ describe("/api/articles", () => {
         .get("/api/articles/50/comments")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Article does not exist");
+          expect(body.msg).toBe("Couldn't find article 50");
         });
     });
     test("GET: 400 responds with appropriate status and error message when given an invalid id", () => {
@@ -165,5 +165,88 @@ describe("/api/articles", () => {
           expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
         });
     });
+    test("POST: 201 responds with the newly added comment, after adding comment to database", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "wow i love this article oh boy 10/10",
+      };
+      return request(app)
+        .post("/api/articles/11/comments")
+        .send(newComment)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: "butter_bridge",
+            body: "wow i love this article oh boy 10/10",
+            article_id: 11,
+          });
+        })
+        .then(() => {
+          return request(app)
+            .get("/api/articles/11/comments")
+            .then(({ body }) => {
+              expect(body.comments.length).toBe(1);
+            });
+        });
+    });
+    test("POST: 400 responds with appropriate status and error message when provided with an invalid comment (missing body or username)", () => {
+      const badComment = {
+        body: "wow i love this article oh boy 10/10",
+      };
+      return request(app)
+        .post("/api/articles/11/comments")
+        .send(badComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Invalid comment, couldn't post - make sure you include a body and username"
+          );
+        });
+    });
+    test("POST: 400 responds with appropriate status and error message when provided with an invalid article_id (not an integer) to post comment to", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "wow i love this article oh boy 10/10",
+      };
+      return request(app)
+        .post("/api/articles/squirell/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
+        });
+    });
+    test("POST: 404 responds with appropriate status code and error message when passed a valid article_id that doesn't exist", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "wow i love this article oh boy 10/10",
+      };
+      return request(app)
+        .post("/api/articles/103/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Couldn't find article 103");
+        });
+    });
+    test("POST: 404 responds with appropriate status code and error message when passed a valid comment structure but with an unregistered username", () => {
+      const newComment = {
+        username: "username_not_registered",
+        body: "wow i love this article oh boy 10/10",
+      };
+      return request(app)
+        .post("/api/articles/8/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Username not registered, couldn't post comment."
+          );
+        });
+    });
+    // update endpoint.json
   });
 });
