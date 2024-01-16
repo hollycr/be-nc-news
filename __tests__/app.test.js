@@ -112,4 +112,58 @@ describe("/api/articles", () => {
         });
     });
   });
+  describe("/:article_id/comments", () => {
+    test("GET: 200 responds with an array of comments for the given article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBe(11);
+          body.comments.forEach((comment) => {
+            expect(comment).toMatchObject({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: expect.any(Number),
+            });
+          });
+        });
+    });
+    test("GET: 200 responds with an array of comments, sorted by date (most recent first - descending)", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+    test("GET: 200 responds with an empty array for an article_id that exists but has no comments", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toEqual([]);
+        });
+    });
+    test("GET: 404 responds with appropriate status and error message when given a valid but non-existent id", () => {
+      return request(app)
+        .get("/api/articles/50/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article does not exist");
+        });
+    });
+    test("GET: 400 responds with appropriate status and error message when given an invalid id", () => {
+      return request(app)
+        .get("/api/articles/squirrels/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
+        });
+    });
+  });
 });
