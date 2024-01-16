@@ -38,3 +38,11 @@ module.exports.fetchCommentsById = (article_id) => {
     return rows;
   });
 };
+
+module.exports.insertComment = (commentToPost, article_id) => {
+  const queryStr = `INSERT INTO comments (author, body, article_id) VALUES ($1, $2, $3) RETURNING *`;
+  const values = [commentToPost.username, commentToPost.body, article_id];
+  return db.query(queryStr, values).then(({ rows }) => {
+    return rows[0];
+  });
+};

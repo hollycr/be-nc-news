@@ -80,5 +80,21 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "add a comment by article_id",
+    "queries": [],
+    "requestBodyFormat": {
+      "username": "username string",
+      "body": "comment body string"
+    },
+    "exampleResponse": {
+      "comment_id": 15,
+      "votes": 0,
+      "created_at": "2023-05-15 21:19:00",
+      "author": "username string",
+      "body": "comment body string",
+      "article_id": 11
+    }
   }
 }
