@@ -5,6 +5,7 @@ const {
   fetchArticles,
   fetchCommentsById,
   insertComment,
+  updateArticleVotesById,
 } = require("../models/app.models");
 
 const { checkArticleExists } = require("../utils");
@@ -72,4 +73,27 @@ module.exports.postCommentByArticleId = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+module.exports.patchArticleVotesById = (req, res, next) => {
+  const { inc_votes } = req.body;
+  const { article_id } = req.params;
+
+  if (!inc_votes || typeof inc_votes !== "number") {
+    res.status(400).send({
+      status: 400,
+      msg: "Invalid request - must include inc_votes which must have an integer value",
+    });
+  } else {
+    fetchArticleById(article_id)
+      .then((currentArticle) => {
+        const updatedVoteCount = currentArticle.votes + inc_votes;
+        updateArticleVotesById(updatedVoteCount, article_id).then((article) => {
+          res.status(200).send({ article });
+        });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
 };
