@@ -14,7 +14,10 @@ module.exports.fetchEndPoints = () => {
 
 module.exports.fetchArticleById = (id) => {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [id])
+    .query(
+      `SELECT *, (SELECT COUNT(*)::int FROM comments WHERE comments.article_id = articles.article_id) as comment_count FROM articles WHERE article_id = $1`,
+      [id]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Article does not exist" });
