@@ -58,3 +58,8 @@ module.exports.updateArticleVotesById = (updatedVoteCount, article_id) => {
       return rows[0];
     });
 };
+
+module.exports.removeCommentByCommentId = (comment_id) => {
+  const queryStr = `DELETE FROM comments WHERE comment_id = $1`;
+  return db.query(queryStr, [comment_id]);
+};
