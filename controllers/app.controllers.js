@@ -7,6 +7,7 @@ const {
   insertComment,
   updateArticleVotesById,
   removeCommentByCommentId,
+  fetchUsers,
 } = require("../models/app.models");
 
 const { checkArticleExists, checkCommentExists } = require("../utils");
@@ -106,6 +107,16 @@ module.exports.deleteCommentByCommentId = (req, res, next) => {
   Promise.all([removeCommentQuery, checkCommentExistsQuery])
     .then((response) => {
       res.sendStatus(204);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports.getUsers = (req, res, next) => {
+  fetchUsers()
+    .then((users) => {
+      res.status(200).send({ users });
     })
     .catch((err) => {
       next(err);

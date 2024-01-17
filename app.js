@@ -7,6 +7,7 @@ const {
   postCommentByArticleId,
   patchArticleVotesById,
   deleteCommentByCommentId,
+  getUsers,
 } = require("./controllers/app.controllers");
 
 const { psqlErrorHandler } = require("./error-handlers");
@@ -32,6 +33,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 
 app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
+
+app.get("/api/users", getUsers);
 
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Endpoint not found!" });
