@@ -322,3 +322,36 @@ describe("/api/articles", () => {
     });
   });
 });
+
+describe("/api/comments", () => {
+  describe("/:comments_id", () => {
+    test("DELETE: 204 sends 204 status after deleting comment from database", () => {
+      return request(app)
+        .delete("/api/comments/5")
+        .expect(204)
+        .then(() => {
+          return request(app)
+            .get("/api/articles/1/comments")
+            .then(({ body }) => {
+              expect(body.comments.length).toBe(10);
+            });
+        });
+    });
+    test("DELETE: 404 responds with appropriate status and message if comment_id is valid (an integer) but not found", () => {
+      return request(app)
+        .delete("/api/comments/60")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Couldn't find comment 60");
+        });
+    });
+    test("DELETE: 400 responds with appropriate status and message if comment_id is invalid (not an integer)", () => {
+      return request(app)
+        .delete("/api/comments/nonsnsenotanid")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
+        });
+    });
+  });
+});

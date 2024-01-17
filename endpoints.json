@@ -115,5 +115,11 @@
         "article_img_url": "url string here"
       }
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "removes a single comment from database (by ID)",
+    "queries": [],
+    "requestBodyFormat": {},
+    "exampleResponse": {}
   }
 }

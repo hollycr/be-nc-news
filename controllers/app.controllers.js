@@ -6,9 +6,10 @@ const {
   fetchCommentsById,
   insertComment,
   updateArticleVotesById,
+  removeCommentByCommentId,
 } = require("../models/app.models");
 
-const { checkArticleExists } = require("../utils");
+const { checkArticleExists, checkCommentExists } = require("../utils");
 
 module.exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -96,4 +97,17 @@ module.exports.patchArticleVotesById = (req, res, next) => {
         next(err);
       });
   }
+};
+
+module.exports.deleteCommentByCommentId = (req, res, next) => {
+  const { comment_id } = req.params;
+  const checkCommentExistsQuery = checkCommentExists(comment_id);
+  const removeCommentQuery = removeCommentByCommentId(comment_id);
+  Promise.all([removeCommentQuery, checkCommentExistsQuery])
+    .then((response) => {
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
