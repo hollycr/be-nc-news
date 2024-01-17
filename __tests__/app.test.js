@@ -77,6 +77,42 @@ describe("/api/articles", () => {
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+  describe("?topic", () => {
+    test("GET: 200 responds with an array sorted by topic value specified in the query", () => {
+      return request(app)
+        .get("/api/articles?topic=cats")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBe(1);
+          expect(body.articles[0]).toMatchObject({
+            author: "rogersop",
+            title: "UNCOVERED: catspiracy to bring down democracy",
+            article_id: 5,
+            topic: "cats",
+            created_at: expect.any(String),
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: 2,
+          });
+        });
+    });
+    test("GET: 200 responds with an empty array when passed a topic that exists but with with no articles", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBe(0);
+        });
+    });
+    test("GET: 404 responds with an appropriate status code and error message when provided with a non-existent topic", () => {
+      return request(app)
+        .get("/api/articles?topic=dogs")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Couldn't find topic: dogs in the database.");
+        });
+    });
+  });
   describe("/:article_id", () => {
     test("GET: 200 responds with a single article, by article_id", () => {
       return request(app)

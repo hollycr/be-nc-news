@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { checkTopicExists } = require("../utils");
 
 module.exports.fetchTopics = () => {
   return db.query("SELECT * FROM topics").then(({ rows }) => {
@@ -22,12 +23,18 @@ module.exports.fetchArticleById = (id) => {
     });
 };
 
-module.exports.fetchArticles = () => {
-  const queryStr = `SELECT 
+module.exports.fetchArticles = (topic) => {
+  const queries = [];
+  let queryStr = `SELECT 
     author, title, article_id, topic, created_at, votes, article_img_url,
     (SELECT COUNT(*)::int FROM comments WHERE comments.article_id = articles.article_id) as comment_count
-    FROM articles ORDER BY created_at DESC;`;
-  return db.query(queryStr).then(({ rows }) => {
+    FROM articles`;
+  if (topic) {
+    queryStr += ` WHERE topic = $1`;
+    queries.push(topic);
+  }
+  queryStr += ` ORDER BY created_at DESC;`;
+  return db.query(queryStr, queries).then(({ rows }) => {
     return rows;
   });
 };
