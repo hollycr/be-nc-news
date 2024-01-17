@@ -10,7 +10,11 @@ const {
   fetchUsers,
 } = require("../models/app.models");
 
-const { checkArticleExists, checkCommentExists } = require("../utils");
+const {
+  checkArticleExists,
+  checkCommentExists,
+  checkTopicExists,
+} = require("../utils");
 
 module.exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -39,8 +43,16 @@ module.exports.getArticleById = (req, res, next) => {
 };
 
 module.exports.getArticles = (req, res, next) => {
-  fetchArticles()
-    .then((articles) => {
+  const { topic } = req.query;
+  const getTopicsArticlesQuery = fetchArticles(topic);
+  const promiseArr = [getTopicsArticlesQuery];
+  if (topic) {
+    const topicExistsQuery = checkTopicExists(topic);
+    promiseArr.push(topicExistsQuery);
+  }
+  Promise.all(promiseArr)
+    .then((response) => {
+      const articles = response[0];
       res.status(200).send({ articles });
     })
     .catch((err) => {
