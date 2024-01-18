@@ -137,9 +137,7 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUserByUsername = (req, res, next) => {
-  console.log(req.body, "<< req.body for getUserByUsername");
   const { username } = req.params;
-  console.log(username, "<< username in controller");
   fetchUserByUsername(username)
     .then((user) => {
       res.status(200).send({ user });
