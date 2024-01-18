@@ -9,12 +9,15 @@ const {
   removeCommentByCommentId,
   fetchUsers,
   fetchUserByUsername,
+  updateCommentByCommentId,
+  fetchCommentByCommentId,
 } = require("../models/app.models");
 
 const {
   checkArticleExists,
   checkCommentExists,
   checkTopicExists,
+  checkValidIncVotes,
 } = require("../utils");
 
 module.exports.getTopics = (req, res, next) => {
@@ -94,23 +97,21 @@ module.exports.patchArticleVotesById = (req, res, next) => {
   const { inc_votes } = req.body;
   const { article_id } = req.params;
 
-  if (!inc_votes || typeof inc_votes !== "number") {
-    res.status(400).send({
-      status: 400,
-      msg: "Invalid request - must include inc_votes which must have an integer value",
-    });
-  } else {
-    fetchArticleById(article_id)
-      .then((currentArticle) => {
-        const updatedVoteCount = currentArticle.votes + inc_votes;
-        updateArticleVotesById(updatedVoteCount, article_id).then((article) => {
-          res.status(200).send({ article });
-        });
-      })
-      .catch((err) => {
-        next(err);
-      });
+  const promiseArr = [fetchArticleById(article_id)];
+  if (inc_votes) {
+    promiseArr.push(checkValidIncVotes(inc_votes));
   }
+  Promise.all(promiseArr)
+    .then((response) => {
+      let newVoteCount = response[0].votes;
+      if (inc_votes) newVoteCount += inc_votes;
+      updateArticleVotesById(newVoteCount, article_id).then((article) => {
+        res.status(200).send({ article });
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports.deleteCommentByCommentId = (req, res, next) => {
@@ -141,6 +142,28 @@ module.exports.getUserByUsername = (req, res, next) => {
   fetchUserByUsername(username)
     .then((user) => {
       res.status(200).send({ user });
+    })
+    .catch(next);
+};
+
+module.exports.patchCommentByCommentId = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { inc_votes } = req.body;
+
+  const promiseArr = [
+    fetchCommentByCommentId(comment_id),
+    checkCommentExists(comment_id),
+  ];
+  if (inc_votes) {
+    promiseArr.push(checkValidIncVotes(inc_votes));
+  }
+  Promise.all(promiseArr)
+    .then((response) => {
+      let newVoteCount = Number(response[0].votes);
+      if (inc_votes) newVoteCount += inc_votes;
+      updateCommentByCommentId(comment_id, newVoteCount).then((comment) => {
+        res.status(200).send({ comment });
+      });
     })
     .catch(next);
 };
