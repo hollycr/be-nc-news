@@ -26,17 +26,39 @@ module.exports.fetchArticleById = (id) => {
     });
 };
 
-module.exports.fetchArticles = (topic) => {
+module.exports.fetchArticles = (
+  topic,
+  sort_by = "created_at",
+  order = "desc"
+) => {
+  const greenListSortBys = [
+    "created_at",
+    "votes",
+    "author",
+    "title",
+    "article_id",
+    "topic",
+  ];
+  if (!greenListSortBys.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort_by query!" });
+  }
   const queries = [];
   let queryStr = `SELECT 
     author, title, article_id, topic, created_at, votes, article_img_url,
     (SELECT COUNT(*)::int FROM comments WHERE comments.article_id = articles.article_id) as comment_count
     FROM articles`;
+
   if (topic) {
-    queryStr += ` WHERE topic = $1`;
     queries.push(topic);
+    queryStr += ` WHERE topic = $${queries.length}`;
   }
-  queryStr += ` ORDER BY created_at DESC;`;
+
+  if (order.toLowerCase() === "asc") {
+    queryStr += ` ORDER BY ${sort_by};`;
+  } else {
+    queryStr += ` ORDER BY ${sort_by} DESC;`;
+  }
+
   return db.query(queryStr, queries).then(({ rows }) => {
     return rows;
   });
