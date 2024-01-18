@@ -246,6 +246,26 @@ describe("/api/articles", () => {
           });
         });
     });
+    test("PATCH: 200 responds with article unchanged if request body is missing inc_votes", () => {
+      return request(app)
+        .patch("/api/articles/11")
+        .send({
+          votes: 10,
+        })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toMatchObject({
+            article_id: 11,
+            author: "icellusedkars",
+            title: "Am I a cat?",
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: 0,
+            article_img_url: expect.any(String),
+          });
+        });
+    });
     test("PATCH: 404 responds with appropriate status and error message when given a valid but non-existent id", () => {
       const votesToUpdate = {
         inc_votes: 12,
@@ -268,20 +288,6 @@ describe("/api/articles", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
-        });
-    });
-    test("PATCH: 400 responds with appropriate status and error message when provided with an invalid request body (missing inc_votes)", () => {
-      const votesToUpdate = {
-        wrong_key: 12,
-      };
-      return request(app)
-        .patch("/api/articles/2")
-        .send(votesToUpdate)
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe(
-            "Invalid request - must include inc_votes which must have an integer value"
-          );
         });
     });
     test("PATCH: 400 responds with appropriate status and error message when provided with an invalid request body (inc_votes is not given with an integer value)", () => {
@@ -465,6 +471,78 @@ describe("/api/comments", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
+        });
+    });
+    test("PATCH: 200 responds with updated comment after updating the votes count on comment, given the comment's comment_id", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({
+          inc_votes: 10,
+        })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comment).toMatchObject({
+            comment_id: 1,
+            body: expect.any(String),
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 26,
+            created_at: expect.any(String),
+          });
+        });
+    });
+    test("PATCH: 200 responds with comment unchanged if request body is missing inc_votes", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({
+          votes: 10,
+        })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comment).toMatchObject({
+            comment_id: 1,
+            body: expect.any(String),
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 16,
+            created_at: expect.any(String),
+          });
+        });
+    });
+    test("PATCH: 404 responds with appropriate status code and error message when provided with a valid but non-existent comment_id", () => {
+      return request(app)
+        .patch("/api/comments/11111111")
+        .send({
+          inc_votes: 10,
+        })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Couldn't find comment 11111111");
+        });
+    });
+    test("PATCH: 400 responds with appropriate status code and error message when provided with an invalid comment_id (not an int)", () => {
+      return request(app)
+        .patch("/api/comments/notanid")
+        .send({
+          inc_votes: 10,
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
+        });
+    });
+    test("PATCH: 400 responds with appropriate status and error message when provided with an invalid request body (inc_votes is not given with an integer value)", () => {
+      const votesToUpdate = {
+        inc_votes: "twelve",
+      };
+      return request(app)
+        .patch("/api/comments/2")
+        .send(votesToUpdate)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Invalid request - must include inc_votes which must have an integer value"
+          );
         });
     });
   });
