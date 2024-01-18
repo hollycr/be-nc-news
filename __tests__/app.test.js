@@ -486,4 +486,27 @@ describe("/api/users", () => {
         });
       });
   });
+  describe("/:username", () => {
+    test("GET: 200 responds with a single user, by username", () => {
+      return request(app)
+        .get("/api/users/rogersop")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.user).toMatchObject({
+            username: "rogersop",
+            name: "paul",
+            avatar_url:
+              "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
+          });
+        });
+    });
+    test("GET: 404 responds with appropriate status and error message when given a valid but non-existent username", () => {
+      return request(app)
+        .get("/api/users/hollythedev")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("hollythedev does not exist!");
+        });
+    });
+  });
 });
