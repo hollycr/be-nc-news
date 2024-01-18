@@ -113,6 +113,66 @@ describe("/api/articles", () => {
         });
     });
   });
+  describe("?sort_by", () => {
+    test("GET: 200 responds with an array sorted by value specified in the query", () => {
+      return request(app)
+        .get("/api/articles?sort_by=article_id")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("article_id", {
+            descending: true,
+          });
+        });
+    });
+    test("GET: 400 responds with appropriate status code and error message when passed an invalid sort_by query", () => {
+      return request(app)
+        .get("/api/articles?sort_by=bananas")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort_by query!");
+        });
+    });
+  });
+  describe("?order", () => {
+    test("GET: 200 responds with an array ordered by DESC when passed an optional query DESC (default sorted by created_at)", () => {
+      return request(app)
+        .get("/api/articles?order=DESC")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+    test("GET: 200 responds with an array ordered by ASC when passed an optional query ASC (default sorted by created_at)", () => {
+      return request(app)
+        .get("/api/articles?order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: false,
+          });
+        });
+    });
+    test("GET: 200 responds with array ordered by ASC when passed optional order query on top of a sort_by query", () => {
+      return request(app)
+        .get("/api/articles?sort_by=article_id&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("article_id", { ascending: true });
+        });
+    });
+    test("GET: 200 order defaults to DESC if not passed a valid order query", () => {
+      return request(app)
+        .get("/api/articles?order=notanorder")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+  });
   describe("/:article_id", () => {
     test("GET: 200 responds with a single article, by article_id", () => {
       return request(app)
