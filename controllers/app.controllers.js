@@ -8,6 +8,7 @@ const {
   updateArticleVotesById,
   removeCommentByCommentId,
   fetchUsers,
+  fetchUserByUsername,
 } = require("../models/app.models");
 
 const {
@@ -133,4 +134,15 @@ module.exports.getUsers = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+module.exports.getUserByUsername = (req, res, next) => {
+  console.log(req.body, "<< req.body for getUserByUsername");
+  const { username } = req.params;
+  console.log(username, "<< username in controller");
+  fetchUserByUsername(username)
+    .then((user) => {
+      res.status(200).send({ user });
+    })
+    .catch(next);
 };

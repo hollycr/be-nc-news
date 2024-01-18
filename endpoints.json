@@ -128,7 +128,7 @@
     "queries": [],
     "requestBodyFormat": {},
     "exampleResponse": {
-      "article": [
+      "user": [
         {
           "username": "butter_bridge",
           "name": "jonny",
@@ -140,6 +140,18 @@
           "avatar_url": "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
         }
       ]
+    }
+  },
+  "GET /api/users/:username": {
+    "description": "serves a single user, by username",
+    "queries": [],
+    "requestBodyFormat": {},
+    "exampleResponse": {
+      "article": {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
     }
   }
 }
