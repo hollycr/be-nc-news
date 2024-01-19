@@ -33,30 +33,12 @@
       "description": "this topic is about this and that and this"
     }
   },
-  "GET /api/articles/:article_id": {
-    "description": "serves a single article, found by article_id",
-    "queries": [],
-    "requestBodyFormat": {},
-    "exampleResponse": {
-      "article": {
-        "article_id": 1,
-        "author": "weegembump",
-        "title": "Seafood substitutions are increasing",
-        "topic": "cooking",
-        "body": "Text from the article..",
-        "created_at": "2018-05-30T15:59:13.341Z",
-        "votes": 0,
-        "article_img_url": "url string here",
-        "comment_count": 6
-      }
-    }
-  },
   "GET /api/articles": {
     "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order", "limit", "p"],
     "requestBodyFormat": {},
     "exampleResponse": {
-      "article": [
+      "articles": [
         {
           "title": "Seafood substitutions are increasing",
           "topic": "cooking",
@@ -66,7 +48,8 @@
           "votes": 0,
           "comment_count": 6
         }
-      ]
+      ],
+      "total_count": 16
     }
   },
   "POST /api/articles": {
@@ -90,6 +73,49 @@
       "created_at": "2023-05-30T15:59:13.341Z",
       "comment_count": 0
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves a single article, found by article_id",
+    "queries": [],
+    "requestBodyFormat": {},
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "author": "weegembump",
+        "title": "Seafood substitutions are increasing",
+        "topic": "cooking",
+        "body": "Text from the article..",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 0,
+        "article_img_url": "url string here",
+        "comment_count": 6
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "serves a single updated article, by article_id",
+    "queries": [],
+    "requestBodyFormat": {
+      "inc_votes": 12
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "author": "weegembump",
+        "title": "Seafood substitutions are increasing",
+        "topic": "cooking",
+        "body": "Text from the article..",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 12,
+        "article_img_url": "url string here"
+      }
+    }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "removes a single article from database (by ID)",
+    "queries": [],
+    "requestBodyFormat": {},
+    "exampleResponse": {}
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves a list of comments by article_id",
@@ -132,22 +158,20 @@
       "article_id": 11
     }
   },
-  "PATCH /api/articles/:article_id": {
-    "description": "serves a single updated article, by article_id",
+  "PATCH /api/comments/:comment_id": {
+    "description": "serves a single updated comment, by comment_id",
     "queries": [],
     "requestBodyFormat": {
       "inc_votes": 12
     },
     "exampleResponse": {
-      "article": {
-        "article_id": 1,
-        "author": "weegembump",
-        "title": "Seafood substitutions are increasing",
-        "topic": "cooking",
-        "body": "Text from the article..",
-        "created_at": "2018-05-30T15:59:13.341Z",
-        "votes": 12,
-        "article_img_url": "url string here"
+      "comment": {
+        "comment_id": 1,
+        "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        "article_id": 9,
+        "author": "butter_bridge",
+        "votes": 26,
+        "created_at": "2020-04-06T12:17:00.000Z"
       }
     }
   },
@@ -185,23 +209,6 @@
         "username": "butter_bridge",
         "name": "jonny",
         "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
-      }
-    }
-  },
-  "PATCH /api/comments/:comment_id": {
-    "description": "serves a single updated comment, by comment_id",
-    "queries": [],
-    "requestBodyFormat": {
-      "inc_votes": 12
-    },
-    "exampleResponse": {
-      "comment": {
-        "comment_id": 1,
-        "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-        "article_id": 9,
-        "author": "butter_bridge",
-        "votes": 26,
-        "created_at": "2020-04-06T12:17:00.000Z"
       }
     }
   }

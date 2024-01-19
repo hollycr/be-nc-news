@@ -525,6 +525,34 @@ describe("/api/articles", () => {
           );
         });
     });
+    test("DELETE: 204 sends 204 status after deleting article from database", () => {
+      return request(app)
+        .delete("/api/articles/5")
+        .expect(204)
+        .then(() => {
+          return request(app)
+            .get("/api/articles")
+            .then(({ body }) => {
+              expect(body.total_count).toBe(12);
+            });
+        });
+    });
+    test("DELETE: 404 responds with appropriate status and message if article_id is valid (an integer) but not found", () => {
+      return request(app)
+        .delete("/api/articles/60")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Couldn't find article 60");
+        });
+    });
+    test("DELETE: 400 responds with appropriate status and message if article_id is invalid (not an integer)", () => {
+      return request(app)
+        .delete("/api/articles/nonsnsenotanid")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request: invalid id (must be an integer)");
+        });
+    });
   });
   describe("/:article_id/comments", () => {
     test("GET: 200 responds with an array of comments for the given article_id", () => {

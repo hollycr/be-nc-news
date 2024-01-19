@@ -6,6 +6,7 @@ const {
   updateArticleVotesByArticleId,
   insertArticle,
   fetchTotalNumberOfArticles,
+  removeArticleByArticleId,
 } = require("../models/articles.models");
 
 const {
@@ -110,6 +111,20 @@ module.exports.postArticle = (req, res, next) => {
   insertArticle(author, title, body, topic, article_img_url)
     .then((article) => {
       res.status(201).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports.deleteArticleByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const articleExistsQuery = checkArticleExists(article_id);
+  const removeArticleQuery = removeArticleByArticleId(article_id);
+
+  Promise.all([removeArticleQuery, articleExistsQuery])
+    .then(() => {
+      res.sendStatus(204);
     })
     .catch((err) => {
       next(err);
