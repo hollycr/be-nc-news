@@ -293,9 +293,8 @@ describe("/api/articles", () => {
         });
     });
   });
-  //PAGINATION
   describe("?p & limit", () => {
-    test("GET: 200 takes optional limit (limits the number of responses) querie, and responds with the articles paginated according to the limit provided", () => {
+    test("GET: 200 takes optional limit (limits the number of responses) query, and responds with the articles paginated according to the limit provided", () => {
       return request(app)
         .get("/api/articles?limit=5")
         .expect(200)
@@ -332,9 +331,7 @@ describe("/api/articles", () => {
         .get("/api/articles?limit=notalimit")
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe(
-            "Invalid limit - can only limit by positive integers!"
-          );
+          expect(body.msg).toBe("Invalid input - must be a positive integer!");
         });
     });
     test("GET: 400 responds with appropriate status code and error message if passed an invalid page number (must be an integer)", () => {
@@ -342,9 +339,7 @@ describe("/api/articles", () => {
         .get("/api/articles?p=notanumber")
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe(
-            "Invalid page number - must be a positive integer!"
-          );
+          expect(body.msg).toBe("Invalid input - must be a positive integer!");
         });
     });
   });
@@ -487,7 +482,6 @@ describe("/api/articles", () => {
         .get("/api/articles/1/comments")
         .expect(200)
         .then(({ body }) => {
-          expect(body.comments.length).toBe(11);
           body.comments.forEach((comment) => {
             expect(comment).toMatchObject({
               comment_id: expect.any(Number),
@@ -613,6 +607,52 @@ describe("/api/articles", () => {
         .then(({ body }) => {
           expect(body.msg).toBe("Username not registered, couldn't post.");
         });
+    });
+    describe("?p & limit", () => {
+      test("GET: 200 takes optional limit (limits the number of responses) query, and responds with the comments paginated according to the limit provided", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=5")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments.length).toBe(5);
+          });
+      });
+      test("GET: 200 takes additional p query (specifies the page at which to start) and responds with the array paginated according to the limit and page provided", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=5&p=3")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments.length).toBe(1);
+          });
+      });
+      test("GET: 200 returns paginated array, with limit defaulting to 10 if not provided", () => {
+        return request(app)
+          .get("/api/articles/1/comments?p=2")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments.length).toBe(1);
+          });
+      });
+      test("GET: 400 responds with appropriate status code and error message if passed an invalid limit (must be an integer)", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=notalimit")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe(
+              "Invalid input - must be a positive integer!"
+            );
+          });
+      });
+      test("GET: 400 responds with appropriate status code and error message if passed an invalid page number (must be an integer)", () => {
+        return request(app)
+          .get("/api/articles/1/comments?p=notanumber")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe(
+              "Invalid input - must be a positive integer!"
+            );
+          });
+      });
     });
   });
 });

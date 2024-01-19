@@ -34,6 +34,7 @@ module.exports.fetchArticles = (
     return Promise.reject({ status: 400, msg: "Invalid sort_by query!" });
   }
   const queries = [];
+  let counter = 2;
   let queryStr = `SELECT 
       author, title, article_id, topic, created_at, votes, article_img_url,
       (SELECT COUNT(*)::int FROM comments WHERE comments.article_id = articles.article_id) as comment_count
@@ -41,12 +42,14 @@ module.exports.fetchArticles = (
 
   if (topic) {
     queries.push(topic);
-    queryStr += ` WHERE topic = $${queries.length}`;
+    queryStr += ` WHERE topic = $${counter - 1}`;
+    counter++;
   }
-  queries.push(limit);
 
   let offset = 0;
   if (p) offset = (p - 1) * limit;
+
+  queries.push(limit, offset);
 
   if (order.toLowerCase() === "asc") {
     queryStr += ` ORDER BY ${sort_by} `;
@@ -54,7 +57,7 @@ module.exports.fetchArticles = (
     queryStr += ` ORDER BY ${sort_by} DESC`;
   }
 
-  queryStr += ` LIMIT $${queries.length} OFFSET ${offset};`;
+  queryStr += ` LIMIT $${counter - 1} OFFSET $${counter};`;
 
   return db.query(queryStr, queries).then(({ rows }) => {
     return rows;
@@ -73,9 +76,12 @@ module.exports.fetchTotalNumberOfArticles = (topic) => {
   });
 };
 
-module.exports.fetchCommentsByArticleId = (article_id) => {
-  const queryStr = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`;
-  return db.query(queryStr, [article_id]).then(({ rows }) => {
+module.exports.fetchCommentsByArticleId = (article_id, limit = 10, p) => {
+  let offset = 0;
+  if (p) offset = (p - 1) * limit;
+  const queryStr = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;`;
+  const queries = [article_id, limit, offset];
+  return db.query(queryStr, queries).then(({ rows }) => {
     return rows;
   });
 };
