@@ -46,6 +46,56 @@ describe("/api/topics", () => {
         });
       });
   });
+  test("POST: 201 returns the newly added topic after posting to the database", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: "temi the boy",
+        description: "he's the biggest best void",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.topic).toEqual({
+          slug: "temi the boy",
+          description: "he's the biggest best void",
+        });
+      });
+  });
+  test("POST: 400 responds with appropriate status code and error message if missing slug in request body", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        description: "oh this is a bad request",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Invalid topic, couldn't post - must include slug and description"
+        );
+      });
+  });
+  test("POST: 400 responds with appropriate status code and error message if slug is an empty string in request body", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: "",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: slug cannot be an empty string");
+      });
+  });
+  test("POST: 409 responds with appropriate status code and error message when attempting to post a topic that already exists in the database", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: "mitch",
+      })
+      .expect(409)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic already exists in the database!");
+      });
+  });
 });
 
 describe("/api/articles", () => {

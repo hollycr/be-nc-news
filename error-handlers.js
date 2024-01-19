@@ -15,6 +15,8 @@ module.exports.psqlErrorHandler = (err, req, res, next) => {
     if (err.table === "articles")
       msg =
         "Invalid article, couldn't post - must include author, title, body and topic (optional article_img_url)";
+    if (err.table === "topics")
+      msg = "Invalid topic, couldn't post - must include slug and description";
     res.status(400).send({
       msg,
     });
@@ -27,6 +29,13 @@ module.exports.psqlErrorHandler = (err, req, res, next) => {
     res.status(404).send({
       msg,
     });
+  }
+  if (err.code === "23505") {
+    if (err.table === "topics") {
+      res
+        .status(409)
+        .send({ status: 409, msg: "Topic already exists in the database!" });
+    }
   }
   next(err);
 };
