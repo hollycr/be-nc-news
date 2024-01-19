@@ -1,7 +1,7 @@
 const {
   getUsers,
   getUserByUsername,
-} = require("../controllers/app.controllers");
+} = require("../controllers/users.controllers");
 
 const usersRouter = require("express").Router();
 
