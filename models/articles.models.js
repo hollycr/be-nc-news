@@ -139,3 +139,7 @@ module.exports.insertArticle = (
     return rows[0];
   });
 };
+
+module.exports.removeArticleByArticleId = (article_id) => {
+  return db.query(`DELETE FROM articles WHERE article_id = $1`, [article_id]);
+};
