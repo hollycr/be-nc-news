@@ -1,11 +1,10 @@
 module.exports.psqlErrorHandler = (err, req, res, next) => {
   let msg = err.detail;
-  // msg: "Bad Request: invalid id (must be an integer)"
+
   if (err.code === "22P02") {
     if (err.line === "620")
       msg = "Bad Request: invalid id (must be an integer)";
-    if (err.line === "882")
-      msg = "Invalid limit - can only limit by positive integers!";
+    if (err.line === "882") msg = "Invalid input - must be a positive integer!";
 
     res.status(400).send({ msg });
   }
@@ -29,15 +28,5 @@ module.exports.psqlErrorHandler = (err, req, res, next) => {
       msg,
     });
   }
-  if (err.code === "42703") {
-    res
-      .status(400)
-      .send({
-        status: 400,
-        msg: "Invalid page number - must be a positive integer!",
-      });
-  }
   next(err);
 };
-
-// code: '42703
