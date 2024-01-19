@@ -77,6 +77,128 @@ describe("/api/articles", () => {
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+  test("POST: 201 responds with the newly added article after the article has been added to the database, when posted an object with author, title, body, topic and img_url", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "rogersop",
+        title: "why queenie is a cutie",
+        body: "Even though she is the worst sometimes she is actually very very cute",
+        topic: "cats",
+        article_img_url: "https://http.cat/images/201.jpg",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          author: "rogersop",
+          title: "why queenie is a cutie",
+          body: "Even though she is the worst sometimes she is actually very very cute",
+          topic: "cats",
+          article_img_url: "https://http.cat/images/201.jpg",
+          article_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          comment_count: expect.any(Number),
+        });
+      });
+  });
+  test("POST: 201 responds with the newly added article with default article_img_url when after when request body is missing article_img_url", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "rogersop",
+        title: "why queenie is a cutie",
+        body: "Even though she is the worst sometimes she is actually very very cute",
+        topic: "cats",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          author: "rogersop",
+          title: "why queenie is a cutie",
+          body: "Even though she is the worst sometimes she is actually very very cute",
+          topic: "cats",
+          article_img_url:
+            "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+          article_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          comment_count: expect.any(Number),
+        });
+      });
+  });
+  test("POST: 404 responds with appropriate status code and error message if passed a non-existent topic", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "rogersop",
+        title: "why queenie is a cutie",
+        body: "Even though she is the worst sometimes she is actually very very cute",
+        topic: "queenie",
+      })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Couldn't find that topic in the database.");
+      });
+  });
+  test("POST: 404 responds with appropriate status code and error message if passed an unregistered user", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "hollythedev",
+        title: "why queenie is a cutie",
+        body: "Even though she is the worst sometimes she is actually very very cute",
+        topic: "cats",
+      })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Username not registered, couldn't post.");
+      });
+  });
+  test("POST: 400 responds with appropriate status code and error message when request body is missing author, title or body", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        title: "why queenie is a cutie",
+        body: "Even though she is the worst sometimes she is actually very very cute",
+        topic: "cats",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Invalid article, couldn't post - must include author, title, body and topic (optional article_img_url)"
+        );
+      });
+  });
+  test("POST: 400 responds with appropriate status code and error message when attempting to post article title as an empty string ", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "rogersop",
+        title: "",
+        body: "Even though she is the worst sometimes she is actually very very cute",
+        topic: "cats",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Title cannot be an empty string");
+      });
+  });
+  test("POST: 400 responds with appropriate status code and error message when attempting to post article body as an empty string ", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "rogersop",
+        title: "queenie beanie",
+        body: "",
+        topic: "cats",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article body cannot be an empty string");
+      });
+  });
+
   describe("?topic", () => {
     test("GET: 200 responds with an array sorted by topic value specified in the query", () => {
       return request(app)
@@ -435,9 +557,7 @@ describe("/api/articles", () => {
         .send(newComment)
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe(
-            "Username not registered, couldn't post comment."
-          );
+          expect(body.msg).toBe("Username not registered, couldn't post.");
         });
     });
   });
