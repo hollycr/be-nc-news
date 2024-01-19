@@ -5,6 +5,7 @@ const {
   insertCommentByArticleId,
   updateArticleVotesByArticleId,
   insertArticle,
+  fetchTotalNumberOfArticles,
 } = require("../models/articles.models");
 
 const {
@@ -25,17 +26,23 @@ module.exports.getArticleById = (req, res, next) => {
 };
 
 module.exports.getArticles = (req, res, next) => {
-  const { topic, sort_by, order } = req.query;
-  const getArticlesQuery = fetchArticles(topic, sort_by, order);
-  const promiseArr = [getArticlesQuery];
+  const { topic, sort_by, order, limit, p } = req.query;
+
+  const getArticlesQuery = fetchArticles(topic, sort_by, order, limit, p);
+  const getTotalsQuery = fetchTotalNumberOfArticles(topic);
+
+  const promiseArr = [getArticlesQuery, getTotalsQuery];
+
   if (topic) {
     const topicExistsQuery = checkTopicExists(topic);
     promiseArr.push(topicExistsQuery);
   }
+
   Promise.all(promiseArr)
     .then((response) => {
       const articles = response[0];
-      res.status(200).send({ articles });
+      const total_count = response[1];
+      res.status(200).send({ articles, total_count });
     })
     .catch((err) => {
       next(err);
