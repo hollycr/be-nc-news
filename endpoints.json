@@ -21,6 +21,18 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "adds a topic to the database",
+    "queries": [],
+    "requestBodyFormat": {
+      "slug": "topic name",
+      "description": "this topic is about this and that and this"
+    },
+    "exampleResponse": {
+      "slug": "topic name",
+      "description": "this topic is about this and that and this"
+    }
+  },
   "GET /api/articles/:article_id": {
     "description": "serves a single article, found by article_id",
     "queries": [],
@@ -81,7 +93,7 @@
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves a list of comments by article_id",
-    "queries": [],
+    "queries": ["limit", "p"],
     "requestBodyFormat": {},
     "exampleResponse": {
       "comments": [
