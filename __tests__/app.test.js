@@ -54,7 +54,6 @@ describe("/api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles.length).toBe(13);
         body.articles.forEach((article) => {
           expect(article).toMatchObject({
             author: expect.any(String),
@@ -198,7 +197,6 @@ describe("/api/articles", () => {
         expect(body.msg).toBe("Article body cannot be an empty string");
       });
   });
-
   describe("?topic", () => {
     test("GET: 200 responds with an array sorted by topic value specified in the query", () => {
       return request(app)
@@ -295,6 +293,62 @@ describe("/api/articles", () => {
         });
     });
   });
+  //PAGINATION
+  describe("?p & limit", () => {
+    test("GET: 200 takes optional limit (limits the number of responses) querie, and responds with the articles paginated according to the limit provided", () => {
+      return request(app)
+        .get("/api/articles?limit=5")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBe(5);
+        });
+    });
+    test("GET: 200 takes additional p query (specifies the page at which to start) and responds with the array paginated according to the limit and page provided", () => {
+      return request(app)
+        .get("/api/articles?limit=5&p=3")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBe(3);
+        });
+    });
+    test("GET: 200 returns paginated array and a total_count property (which displays the total number of articles with any filters applied, discounting the limit)", () => {
+      return request(app)
+        .get("/api/articles?limit=5&p=3")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.total_count).toBe(13);
+        });
+    });
+    test("GET: 200 returns paginated array, with limit defaulting to 10 if not provided", () => {
+      return request(app)
+        .get("/api/articles?p=2")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBe(3);
+        });
+    });
+    test("GET: 400 responds with appropriate status code and error message if passed an invalid limit (must be an integer)", () => {
+      return request(app)
+        .get("/api/articles?limit=notalimit")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Invalid limit - can only limit by positive integers!"
+          );
+        });
+    });
+    test("GET: 400 responds with appropriate status code and error message if passed an invalid page number (must be an integer)", () => {
+      return request(app)
+        .get("/api/articles?p=notanumber")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Invalid page number - must be a positive integer!"
+          );
+        });
+    });
+  });
+
   describe("/:article_id", () => {
     test("GET: 200 responds with a single article, by article_id", () => {
       return request(app)

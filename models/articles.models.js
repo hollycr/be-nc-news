@@ -18,7 +18,9 @@ module.exports.fetchArticleById = (id) => {
 module.exports.fetchArticles = (
   topic,
   sort_by = "created_at",
-  order = "desc"
+  order = "desc",
+  limit = 10,
+  p
 ) => {
   const greenListSortBys = [
     "created_at",
@@ -41,15 +43,33 @@ module.exports.fetchArticles = (
     queries.push(topic);
     queryStr += ` WHERE topic = $${queries.length}`;
   }
+  queries.push(limit);
+
+  let offset = 0;
+  if (p) offset = (p - 1) * limit;
 
   if (order.toLowerCase() === "asc") {
-    queryStr += ` ORDER BY ${sort_by};`;
+    queryStr += ` ORDER BY ${sort_by} `;
   } else {
-    queryStr += ` ORDER BY ${sort_by} DESC;`;
+    queryStr += ` ORDER BY ${sort_by} DESC`;
   }
+
+  queryStr += ` LIMIT $${queries.length} OFFSET ${offset};`;
 
   return db.query(queryStr, queries).then(({ rows }) => {
     return rows;
+  });
+};
+
+module.exports.fetchTotalNumberOfArticles = (topic) => {
+  const queries = [];
+  let queryStr = `SELECT * FROM articles`;
+  if (topic) {
+    queries.push(topic);
+    queryStr += ` WHERE topic = $1 ;`;
+  }
+  return db.query(queryStr, queries).then(({ rows }) => {
+    return rows.length;
   });
 };
 
