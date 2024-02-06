@@ -26,6 +26,7 @@ module.exports.fetchArticles = (
     "created_at",
     "votes",
     "author",
+    "comment_count",
     "title",
     "article_id",
     "topic",

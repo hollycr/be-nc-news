@@ -286,10 +286,10 @@ describe("/api/articles", () => {
   describe("?sort_by", () => {
     test("GET: 200 responds with an array sorted by value specified in the query", () => {
       return request(app)
-        .get("/api/articles?sort_by=article_id")
+        .get("/api/articles?sort_by=comment_count")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toBeSortedBy("article_id", {
+          expect(body.articles).toBeSortedBy("comment_count", {
             descending: true,
           });
         });
