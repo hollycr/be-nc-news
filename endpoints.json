@@ -200,6 +200,20 @@
       ]
     }
   },
+  "POST /api/users": {
+    "description": "adds a user to the database",
+    "queries": [],
+    "requestBodyFormat": {
+      "username": "hollythedev",
+      "name": "holly",
+      "avatar_url": "optional"
+    },
+    "exampleResponse": {
+      "username": "hollythedev",
+      "name": "holly",
+      "avatar_url": "optional"
+    }
+  },
   "GET /api/users/:username": {
     "description": "serves a single user, by username",
     "queries": [],
