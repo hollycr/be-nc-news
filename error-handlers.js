@@ -36,6 +36,11 @@ module.exports.psqlErrorHandler = (err, req, res, next) => {
         .status(409)
         .send({ status: 409, msg: "Topic already exists in the database!" });
     }
+    if (err.table === "users") {
+      res
+        .status(409)
+        .send({ status: 409, msg: "Username already exists in the database!" });
+    }
   }
   next(err);
 };
