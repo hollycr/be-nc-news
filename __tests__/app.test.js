@@ -878,5 +878,62 @@ describe("/api/users", () => {
           expect(body.msg).toBe("hollythedev does not exist!");
         });
     });
+    test("POST: 201 responds with the newly added user, after adding user to database", () => {
+      return request(app)
+        .post("/api/users")
+        .send({
+          username: "hollythedev",
+          name: "holly",
+          avatar_url: "https://http.cat/images/201.jpg",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.user).toMatchObject({
+            username: "hollythedev",
+            name: "holly",
+            avatar_url: "https://http.cat/images/201.jpg",
+          });
+        });
+    });
+    test("POST: 201 responds with the newly added user, after adding user to database, if passed a request body without an avatar_url", () => {
+      return request(app)
+        .post("/api/users")
+        .send({
+          username: "hollythedev",
+          name: "holly",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.user).toMatchObject({
+            username: "hollythedev",
+            name: "holly",
+            avatar_url: null,
+          });
+        });
+    });
+    test("POST: 409 responds with appropriate status code and error message when username already exists in database", () => {
+      return request(app)
+        .post("/api/users")
+        .send({
+          username: "butter_bridge",
+          name: "jonny",
+        })
+        .expect(409)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Username already exists in the database!");
+        });
+    });
   });
+
+  //post 409 when provided with username that already exists
+  // post 400 when provided with username that's an empty string
+  // post 400 when provided a name that's an empty string
 });
+
+/*
+CREATE TABLE users (
+        username VARCHAR PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        avatar_url VARCHAR
+      );`
+*/

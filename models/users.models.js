@@ -17,3 +17,11 @@ module.exports.fetchUserByUsername = (username) => {
     return rows[0];
   });
 };
+
+module.exports.insertUser = (username, name, avatar_url) => {
+  const queryValues = [username, name, avatar_url];
+  const queryStr = `INSERT INTO users ( username, name, avatar_url) VALUES ($1, $2, $3) RETURNING *`;
+  return db.query(queryStr, queryValues).then(({ rows }) => {
+    return rows[0];
+  });
+};
