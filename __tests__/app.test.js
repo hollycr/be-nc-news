@@ -527,9 +527,9 @@ describe("/api/articles", () => {
     });
     test("DELETE: 204 sends 204 status after deleting article from database", () => {
       return request(app)
-        .delete("/api/articles/5")
+        .delete("/api/articles/1")
         .expect(204)
-        .then(() => {
+        .then((res) => {
           return request(app)
             .get("/api/articles")
             .then(({ body }) => {
